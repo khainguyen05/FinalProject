@@ -1,0 +1,4 @@
+﻿  DisneyStockPrice.cpp
+C:\Users\Nguyen Quoc Khai\Desktop\ProjectDisneyDSA\DisneyStockPrice\DisneyStockPrice\DisneyStockPrice.cpp(106,37): warning C4101: 'e': unreferenced local variable
+C:\Users\Nguyen Quoc Khai\Desktop\ProjectDisneyDSA\DisneyStockPrice\DisneyStockPrice\DisneyStockPrice.cpp(338,20): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  DisneyStockPrice.vcxproj -> C:\Users\Nguyen Quoc Khai\Desktop\ProjectDisneyDSA\DisneyStockPrice\x64\Debug\DisneyStockPrice.exe
