@@ -388,7 +388,7 @@ void printPage(const vector<Disney>& data, int pageNumber, int itemsPerPage) {
 
     // Print the data on the current page
     for (int i = startIdx; i < endIdx; ++i) {
-        cout << "Disney Data " << i + 1 << ":\n";
+        cout << "Disney Data " << i + 1 << " (Nam: " << data[i].Date << "):\n";
         cout << "Open Price: " << data[i].Open_Price << "\n"
             << "High Price: " << data[i].High_Price << "\n"
             << "Low Price: " << data[i].Low_Price << "\n"
@@ -408,7 +408,8 @@ void paginate(vector<Disney>& data, int itemsPerPage) {
         printPage(data, currentPage, itemsPerPage);
 
         // User input for navigating between pages
-        cout << "Nhap '1' de di toi trang tiep theo, '2' de di den trang truoc, '0' de thoat: ";
+        cout << "Nhap '1' de di toi trang tiep theo, '2' de di den trang truoc, "
+            "'3' de chon trang cu the, '0' de thoat: ";
         char choice;
         cin >> choice;
 
@@ -418,11 +419,23 @@ void paginate(vector<Disney>& data, int itemsPerPage) {
         else if (choice == '2' && currentPage > 1) {
             currentPage--; // Go to previous page
         }
+        else if (choice == '3') {
+            cout << "Nhap so trang ban muon den (1-" << totalPages << "): ";
+            int selectedPage;
+            cin >> selectedPage;
+
+            if (selectedPage >= 1 && selectedPage <= totalPages) {
+                currentPage = selectedPage; // Jump to specific page
+            }
+            else {
+                cout << "So trang khong hop le! Vui long nhap lai.\n";
+            }
+        }
         else if (choice == '0') {
             break; // Exit
         }
         else {
-            cout << "Invalid choice, please try again!" << endl;
+            cout << "Lua chon khong hop le, vui long thu lai!\n";
         }
     }
 }
@@ -595,17 +608,17 @@ void writeFile(TreeNode* root, const string filename)
 void displayMenu()
 {
     cout << "~~~~~~~~~~~~~~~~~****Menu***~~~~~~~~~~~~~~~~~\n";
-    cout << "1.Xem danh sach du lieu\n";
-    cout << "2.Tim kiem theo ngay\n";
-    cout << "3.Them du lieu \n";
-    cout << "4.Xoa du lieu theo ngay\n";
+    cout << "1.Xem danh sach du lieu (co phan trang)\n";
+    cout << "2.Tim kiem du lieu theo ngay (yyyy-mm-dd)\n";
+    cout << "3.Them du lieu\n";
+    cout << "4.Xoa du lieu theo ngay (yyyy-mm-dd)\n";
     cout << "5.Cap nhat du lieu theo ngay\n";
-    cout << "6.Tim gia tri cao nhat theo tieu chi\n";
-    cout << "7.Sap xep du lieu (Insertion Sort va Selection Sort) theo tieu chi\n";
-    cout << "8.Ve Bieu Do\n";
+    cout << "6.Tim ngay co tieu chi cao nhat (Open Price, Close Price va Volume)\n";
+    cout << "7.Sap xep va trich du lieu theo nam (Insertion Sort va Selection Sort)\n";
+    cout << "8.Ve bieu do bieu dien theo nam\n";
     cout << "0.Thoat\n";
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-    cout << "Nhap lua chon(1-8): ";
+    cout << "Nhap lua chon (1-8): ";
 }
 int main()
 {
@@ -621,6 +634,8 @@ int main()
             vector<Disney> data;
             stack<TreeNode*> s;
             TreeNode* current = root;
+
+            // In-order traversal to collect data
             while (current != nullptr || !s.empty()) {
                 while (current != nullptr) {
                     s.push(current);
@@ -631,10 +646,10 @@ int main()
                 data.push_back(current->data);
                 current = current->right;
             }
-            int itemsPerPage = 5; // so trang
+
+            int itemsPerPage = 5; // Number of items per page
             paginate(data, itemsPerPage);
             break;
-
         }
         case 2:
         {
