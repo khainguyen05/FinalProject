@@ -49,6 +49,25 @@ Disney CreateObject(const string& line) {
     }
     return d;
 }
+// Ham kiem tra ngay trong file
+bool isDateInFile(const std::string& filePath, const std::string& date) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cout << "Khong the mo file: " << filePath << std::endl;
+        return false;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream ss(line);
+        std::string existingDate;
+        ss >> existingDate; // Gia dinh ngay nam o dau moi dong
+        if (existingDate == date) {
+            return true; // Ngay da ton tai
+        }
+    }
+    return false;
+}
 // Ham chen du lieu vao cay nhi phan tim kiem theo ngay (Date)
 TreeNode* insert(TreeNode* root, Disney x) {
     if (root == nullptr) {
@@ -82,7 +101,53 @@ TreeNode* insert(TreeNode* root, Disney x) {
     }
     return root;
 }
+//Ham kiem tra nam nhuan hay khong
+bool isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+//Ham kiem tra ngay hop le 
+bool isValidDate(const std::string& dateStr) {
+    //Kiem tra ding dang yyyy-mm-dd
+    std::regex datePattern("^\\d{4}-\\d{2}-\\d{2}$");
+    if (!std::regex_match(dateStr, datePattern)) {
+        std::cout << "Ngay khong dung dinh dang yyyy-mm-dd." << std::endl;
+        return false;
+    }
 
+    //Tach cac gia tri ngay thang nam
+    int year, month, day;
+    sscanf_s(dateStr.c_str(), "%d-%d-%d", &year, &month, &day);
+
+    // Kiem tra thang
+    if (month < 1 || month > 12) {
+        std::cout << "Thang khong hop le (1-12)." << std::endl;
+        return false;
+    }
+
+    // Xac dinh so ngay toi da
+    int maxDays = 0;
+    switch (month) {
+    case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+        maxDays = 31;
+        break;
+    case 4: case 6: case 9: case 11:
+        maxDays = 30;
+        break;
+    case 2:
+        maxDays = isLeapYear(year) ? 29 : 28;
+        break;
+    default:
+        maxDays = 0; 
+    }
+
+    // Kiem tra ngay
+    if (day < 1 || day > maxDays) {
+        std::cout << "Ngay khong hop le voi thang " << month << " nam " << year << "." << std::endl;
+        return false;
+    }
+
+    return true;
+}
 // Ham doc du lieu tu file
 void readFromFile(TreeNode*& root, const string& filename) {
     ifstream input(filename);
@@ -536,7 +601,7 @@ void displayMenu()
     cout << "4.Xoa du lieu theo ngay\n";
     cout << "5.Cap nhat du lieu theo ngay\n";
     cout << "6.Tim gia tri cao nhat theo tieu chi\n";
-    cout << "7. Sap xep du lieu (Insertion Sort va Selection Sort) theo tieu chi\n";
+    cout << "7.Sap xep du lieu (Insertion Sort va Selection Sort) theo tieu chi\n";
     cout << "8.Ve Bieu Do\n";
     cout << "0.Thoat\n";
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
@@ -601,13 +666,44 @@ int main()
             Disney newData;
             cout << "Nhap ngay (yyyy-mm-dd): ";
             cin >> newData.Date;
+
+            // Kiem tra xem ngay nhap vao co hop le hay khong
+            if (!isValidDate(newData.Date)) {
+                cout << "Ngay nhap vao khong hop le. Vui long nhap lai." << std::endl;
+                break;
+            }
+
+            // Kiem tra xem ngay da ton tai trong cay chua
+            TreeNode* current = root;
+            bool dateExists = false;  // Bien flag kiem tra xem ngay da ton tai hay chua
+            while (current != nullptr) {
+                if (newData.Date == current->data.Date) {
+                    dateExists = true;  // Neu tim thay ngay, dat flag dateExists = true
+                    break;  // Dung vong lap khi da tim thay ngay
+                }
+                if (newData.Date < current->data.Date) {
+                    current = current->left;  // Duyet sang ben trai
+                }
+                else {
+                    current = current->right;  // Duyet sang ben phai
+                }
+            }
+
+            // Neu ngay da ton tai, hien thi thong bao va thoat
+            if (dateExists) {
+                cout << "Ngay " << newData.Date << " da ton tai. Khong the them." << std::endl;
+                break;  // Dung case neu ngay da ton tai
+            }
+
+            // Neu ngay chua ton tai, tiep tuc nhap du lieu va them vao cay
             newData.Open_Price = checkFloat("Nhap gia Open Price: ");
             newData.High_Price = checkFloat("Nhap gia High Price: ");
             newData.Low_Price = checkFloat("Nhap gia Low Price: ");
             newData.Close_Price = checkFloat("Nhap gia Close Price: ");
             newData.Volume = checkInt("Nhap Volume: ");
-            root = insert(root, newData);
-            writeFile(root, "C:/DSA/DisneyList.TXT");
+
+            root = insert(root, newData);  // Them du lieu vao cay
+            writeFile(root, "C:/DSA/DisneyList.TXT");  // Luu vao file
             break;
         }
         case 4:
