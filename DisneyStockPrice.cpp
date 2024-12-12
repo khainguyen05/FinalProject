@@ -148,6 +148,22 @@ bool isValidDate(const std::string& dateStr) {
 
     return true;
 }
+//Kiem tra ngay da ton tai hay chua
+bool isDateExist(TreeNode* root, const string& date) {
+    while (root != nullptr) {
+        if (date == root->data.Date) {
+            return true; // ngay da ton tai
+        }
+        if (date < root->data.Date) {
+            root = root->left; // duyet trai
+        }
+        else {
+            root = root->right; // duyet phai
+        }
+    }
+    return false; // ngay chua ton tai
+}
+
 // Ham doc du lieu tu file
 void readFromFile(TreeNode*& root, const string& filename) {
     ifstream input(filename);
@@ -688,47 +704,51 @@ int main()
                 break;
             }
 
-            // Kiem tra xem ngay da ton tai trong cay chua
-            TreeNode* current = root;
-            bool dateExists = false;  // Bien flag kiem tra xem ngay da ton tai hay chua
-            while (current != nullptr) {
-                if (newData.Date == current->data.Date) {
-                    dateExists = true;  // Neu tim thay ngay, dat flag dateExists = true
-                    break;  // Dung vong lap khi da tim thay ngay
-                }
-                if (newData.Date < current->data.Date) {
-                    current = current->left;  // Duyet sang ben trai
-                }
-                else {
-                    current = current->right;  // Duyet sang ben phai
-                }
-            }
-
-            // Neu ngay da ton tai, hien thi thong bao va thoat
-            if (dateExists) {
+            // Kiem tra xem ngay da ton tai trong cay hay chua
+            if (isDateExist(root, newData.Date)) {
                 cout << "Ngay " << newData.Date << " da ton tai. Khong the them." << std::endl;
-                break;  // Dung case neu ngay da ton tai
+                break;
             }
 
-            // Neu ngay chua ton tai, tiep tuc nhap du lieu va them vao cay
+            // Nhap du lieu moi
             newData.Open_Price = checkFloat("Nhap gia Open Price: ");
             newData.High_Price = checkFloat("Nhap gia High Price: ");
             newData.Low_Price = checkFloat("Nhap gia Low Price: ");
             newData.Close_Price = checkFloat("Nhap gia Close Price: ");
             newData.Volume = checkInt("Nhap Volume: ");
 
-            root = insert(root, newData);  // Them du lieu vao cay
-            writeFile(root, "C:/DSA/DisneyList.TXT");  // Luu vao file
+            // Them du lieu vao cay
+            root = insert(root, newData);
+
+            // Ghi lai vao file
+            writeFile(root, "C:/DSA/DisneyList.TXT");
+
+            cout << "Du lieu da duoc them thanh cong!" << endl;
             break;
         }
-        case 4:
-        {
+        case 4: {
             string dateStr;
             cout << "Nhap ngay can xoa (yyyy-mm-dd): ";
             cin >> dateStr;
+
+            // Kiem tra ngay nhap vao co hop le hay khong
+            if (!isValidDate(dateStr)) {
+                std::cout << "Ngay nhap vao khong hop le. Vui long nhap lai." << std::endl;
+                break;
+            }
+
+            // Kiem tra ngay co ton tai trong cay hay khong
+            if (!isDateExist(root, dateStr)) {
+                std::cout << "Ngay " << dateStr << " khong ton tai trong cay. Khong the xoa." << std::endl;
+                break;
+            }
+
+            // Thuc hien xoa ngay
             root = deleteNodeByDate(root, dateStr);
+
+            // Ghi lai vao file
             writeFile(root, "C:/DSA/DisneyList.TXT");
-            cout << "Du lieu da duoc xoa thanh cong" << endl;
+            std::cout << "Ngay " << dateStr << " da duoc xoa thanh cong." << std::endl;
             break;
         }
         case 5:
